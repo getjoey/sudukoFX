@@ -46,8 +46,7 @@ public class Controller implements Initializable {
         gridDimension = canvas.getHeight();
         squareDimension = gridDimension / 9;
 
-        map = new SudokuMap(9);
-        map.setGame(10);
+        map = SudokuMap.getInstance();
         numberData = map.getGridMap();
 
         drawGrid();
@@ -66,10 +65,11 @@ public class Controller implements Initializable {
     private void mouseClick(MouseEvent event) {
         Pair<Integer,Integer> location = getSquareLocation(event.getX(), event.getY());
         focusedSquare = location;
-        highlightSquare(location);
+        highlightSquare(location,true);
     }
 
     private void keyPress(KeyEvent event) {
+        boolean valid = true;
         if (focusedSquare != null) {
             Integer value = parseKeyCodeToNumber(event.getText());
             if(value != null) {
@@ -79,10 +79,13 @@ public class Controller implements Initializable {
                 else if(map.isMoveValid(value, focusedSquare.getKey(),focusedSquare.getValue())) {
                     numberData[focusedSquare.getKey()][focusedSquare.getValue()].setValue(value);
                 }
+                else {
+                    valid = false;
+                }
             }
             gc.clearRect(0,0,gridDimension,gridDimension);
             drawGrid();
-            highlightSquare(focusedSquare);
+            highlightSquare(focusedSquare,valid);
             repaintData();
         }
     }
@@ -119,7 +122,7 @@ public class Controller implements Initializable {
         gc.fillText(""+num,x-7,y+7);
     }
 
-    private void highlightSquare(Pair<Integer,Integer> location) {
+    private void highlightSquare(Pair<Integer,Integer> location, boolean valid) {
 
         double x1 = focusedSquare.getKey() * squareDimension;
         double x2 = squareDimension;
@@ -128,6 +131,9 @@ public class Controller implements Initializable {
 
         gc.clearRect(0,0,gridDimension,gridDimension);
         gc.setFill(Color.GRAY);
+        if(!valid) {
+            gc.setFill(Color.RED);
+        }
         gc.fillRect(x1,y1,x2,y2);
         drawGrid();
         repaintData();

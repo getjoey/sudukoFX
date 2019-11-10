@@ -6,6 +6,7 @@ import java.util.Random;
 
 public class SudokuMap {
 
+    static SudokuMap instance = null;
     private SmallSquare[][] gridMapSave;
     private SmallSquare[][] gridMap;
     private final int gridSize;
@@ -14,7 +15,7 @@ public class SudokuMap {
     private Random ran;
     private ArrayList[][] possibilities;
 
-    public SudokuMap(int gridSize) {
+    private SudokuMap(int gridSize, int toRemove) {
         this.ran = new Random();
         this.gridSize = gridSize;
 
@@ -30,6 +31,18 @@ public class SudokuMap {
         updatePossibilities();
 
         constructGridMap();
+        setGame(toRemove);
+    }
+
+    public static SudokuMap getInstance() {
+       return getInstance(0);
+    }
+
+    public static SudokuMap getInstance(int toRemove) {
+        if(instance == null) {
+            instance = new SudokuMap(9, toRemove);
+        }
+        return instance;
     }
 
     /*
@@ -248,8 +261,7 @@ public class SudokuMap {
 
 
 
-
-    //GAME LOGIC ... dont touch
+    //GAME LOGIC
     public boolean isMoveValid(int val, int x, int y) {
         if(checkBigSquare(val,x,y) && checkLines(val,x,y)){
             return true;
@@ -320,16 +332,16 @@ public class SudokuMap {
 
     public void setGame(int toRemove) {
         int removed = 0;
+        Random ran = new Random();
         while(removed != toRemove){
-            int x = (int) (Math.random()*8);
-            int y = (int) (Math.random()*8);
+            int x = ran.nextInt(9);
+            int y = ran.nextInt(9);
 
             if(gridMap[x][y].getValue() != 0) {
                 gridMap[x][y].setValue(0);
                 removed++;
             }
         }
-
     }
 
 }
